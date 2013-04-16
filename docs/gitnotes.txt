@@ -1,0 +1,21 @@
+To commit a file:
+
+	git add file/name.html                                                         
+	
+	git commit -a                                                                  
+	--
+		Title
+	
+		Description
+	--
+	
+	git push origin master
+	--
+		Username: masterfoo
+		Password: super secret
+	--
+
+To remove a file:
+
+	git rm file/name.html
+	git commit

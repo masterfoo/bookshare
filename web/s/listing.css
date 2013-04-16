@@ -15,17 +15,18 @@ div.listing{
 			background-color:#d9d9d9;
 		}
 	.title {
-			font-size:16pt;
+			font-size:48pt;
 		}	
 	.isbn {
-			font-size:10pt;
+			font-size:24pt;
 		}
 	.author {
-			font-size:10pt;
+			font-size:24pt;
 		}
 	.info{
-			border:10%;
-			padding:20%;
+			font-size:16pt;
+			border:5%;
+			padding:5%;
 	}
 	.poster{
 			font-style:italic;
