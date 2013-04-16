@@ -1,0 +1,53 @@
+div.results
+{
+	width: 60%;
+	min-height: 400px;
+	float: left;
+	border-right: 1px solid;
+	overflow: hidden;
+	padding-left:5%;
+}
+div.search
+{
+	width: 30%;
+	padding-left: 1%;
+	min-height: 400px;
+	float: left;
+	overflow: hidden;
+}	
+	.entry {
+			position:relative;
+			border: 1px solid white;
+			border-bottom: 1px solid #c7c7c7;
+			padding-bottom:5px;
+		}
+	.entry:hover {
+			background-color:#d9d9d9;
+		}
+	.title {
+			font-size:16pt;
+		}	
+	.isbn {
+			font-size:10pt;
+		}
+	.author {
+			font-size:10pt;
+		}
+	.info{
+			border:10%;
+			padding:20%;
+	}
+	.poster{
+			font-style:italic;
+			font-size:10pt;
+			position:absolute;
+			bottom:35%;
+			right:2%;
+	}
+
+	.date{
+			font-style:italic;
+			font-size:8pt;
+			position:absolute;
+			bottom:2%;
+			right:2%;

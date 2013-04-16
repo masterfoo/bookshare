@@ -1,0 +1,65 @@
+body
+{
+	font-family: sans-serif;
+	font-size: 12px;
+}
+div.main
+{
+	width: 80%;
+	min-width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	overflow: hidden;
+}
+div.banner
+{
+	width: 100%;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	background-image: linear-gradient(to bottom, #008043 0%, #000000 100%);
+	border-radius: 10px;
+}
+.banner a {
+	text-decoration: none;
+}
+
+div.menu
+{
+	text-align: right;
+	padding-right: 10px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	font-size: 1.2em;
+}
+div.input
+{
+	width: 30%;
+	min-height: 400px;
+	float: left;
+	border-right: 1px solid;
+	margin-right: 1%;
+	overflow: hidden;
+}
+div.about
+{
+	width: 30%;
+	float: left;
+}
+p.title
+{
+	padding: 0px;
+	margin: 0px;
+	padding-left: 40px;
+	font-size: 2em;
+	font-weight: bold;
+	text-shadow: -1px 2px 0px rgba(0, 0, 0, 1);
+	letter-spacing: 1px;
+	color: #FFFFFF;
+}
+p.subtitle
+{
+	padding: 0px;
+	margin: 0px;
+	padding-bottom: 10px;
+	font-size: 1.2em;
+}

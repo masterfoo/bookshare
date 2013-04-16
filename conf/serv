@@ -1,0 +1,38 @@
+# Configuration for handling of requests by krakws.
+# Written by Mike Perron (2013)
+#
+# All changes made here are effectively immediately, except where explicitly
+# noted. Be careful!
+
+# Server's domain name. (Does not need to be fully qualified)
+# This will be set to $SERVER_NAME
+server_name="mostlyharmless.dyndns.org"
+
+# The user the server will run as.
+# This change will be reflected the next time the server starts.
+web_user_name="ghandi"
+
+# This is the live web root.
+# It will be set to $web_root and $DOCUMENT_ROOT for compatibility.
+web_root="web"
+
+# Where Kraknet Modules are stored, each in their own directory.
+# This will be set to $mod_root.
+mod_root="mods"
+
+# Temporary Data (used for CGI POST).
+# This will be set to $tmp_ws.
+tmp_ws="/tmp/krakws"
+
+# If a path is requested, we'll search for each file in this semi-colon
+# deliniated list in that path until one is found.
+default_documents="index.html;index.cgi;ghandi.html"
+
+# Web directory protection keeps files from outside of $web_root from being
+# served. If you want to symlink to files outside of $web_root you can disable
+# this protection.
+web_dir_protection="no"
+
+# SQLite Database Locations
+knet_sids_location="db/sids.db"
+knet_db_location="db/kraknet.db"

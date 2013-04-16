@@ -1,0 +1,28 @@
+# MIME types are defined here.
+# extension	MIME
+# unrecognized extensions will be reported as application/octet-stream
+
+# no extension default
+     text/plain; charset=UTF-8
+
+# text
+html text/html; charset=UTF-8
+css  text/css; charset=UTF-8
+txt  text/plain; charset=UTF-8
+text text/plain; charset=UTF-8
+c    text/plain; charset=UTF-8
+h    text/plain; charset=UTF-8
+docx application/octet-stream
+
+# images
+jpg  image/jpeg
+png  image/png
+gif  image/gif
+ico  image/x-icon
+
+# archives
+gz   application/x-gzip
+tar  application/x-tar
+zip  application/x-zip
+
+# other

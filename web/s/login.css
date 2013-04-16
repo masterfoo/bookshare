@@ -1,0 +1,6 @@
+label { font-size:10px; text-transform:uppercase; cursor:pointer; }
+.not_small { font-size:12px; text-transform:none; }
+input { font-size:12pt; }
+#forms { margin-left: auto; margin-right: auto; text-align:center; }
+#login_form { padding:0px 20px; text-align:left; display:inline-block; vertical-align:top; margin-right:25px; }
+#register_form { padding:0px 20px; text-align:left; display:inline-block; vertical-align:top; margin-left:25px; }

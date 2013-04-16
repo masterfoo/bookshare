@@ -1,0 +1,53 @@
+.login_name { color:#9999FF; }
+
+#user_management { position:relative; }
+
+#user_list {
+	display:inline-block;
+	vertical-align:top;
+	width:75%;
+}
+#user_op {
+	padding-left:10px;
+	display:inline-block;
+	vertical-align:top;
+}
+.user_table {
+	border: solid 1px black;
+	width:100%;
+	padding: 0px;
+	margin: 0px;
+}
+.user_table td:nth-child(2n-1) { background-color: #AAAAAA; }
+.user_table td:nth-child(1) { text-align:center; }
+.user_table th { border-bottom:solid 1px black; }
+
+.utcol_check {
+	background-color:#AAAAAA;
+}
+.utcol_name {
+	background-color:white;
+}
+.utcol_perm {
+	background-color:#AAAAAA;
+}
+.utcol_jdate {
+	background-color:white;
+}
+
+hr { border: solid 1px black; background-color:black; }
+
+#listing_mgmt { position:relative; }
+
+#listing_select {
+	vertical-align:top;
+	display:inline-block;
+	width:75%;
+}
+#listing_select select { width:100%; }
+
+#listing_options {
+	margin-left:10px;
+	vertical-align:top;
+	display:inline-block;
+}

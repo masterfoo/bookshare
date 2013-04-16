@@ -1,0 +1,74 @@
+body {
+	background-color: #000000;
+	font-family:Ubuntu,Verdana,sans-serif;
+}
+.knet_header {
+	margin:0px;
+	text-align:left;
+	font-size:36pt;
+	text-shadow:0.1em 0.1em 0.2em black;
+}
+.knet_header a {
+	text-decoration:none;
+	color:white;
+}
+
+.mcontent_pane { 
+	border: 1px solid #606060;
+	background-color:#303030;
+}
+
+#clock {
+	position:absolute;
+	right:1em;
+}
+
+.core {
+	position:relative;
+	margin-left:auto;
+	margin-right:auto;
+	width:80%;min-width:750px;
+	max-width:1024px;
+	color:white;
+}
+.nbar {
+	text-indent:1em;
+	background-color:green;
+	border-bottom:solid 1px #303030;
+	width:100%;
+}
+.nbar a {
+	color:white;
+	text-decoration:none;
+}
+.nbar a:hover {
+	color:#F0F070;
+}
+
+.counter {
+	color:green;
+	font-family:monospace;
+	font-weight:bold;
+	text-align:center;
+	margin-left:auto;
+	margin-right:auto;
+}
+.footer {
+	background-color:green;
+	border-top:solid 1px #303030;
+	text-align:center;
+	color:white;
+}
+.user_info {
+	position:absolute;
+	top:0px;
+	right:0px;
+	text-align:right;
+	font-family:Ubuntu,Verdana,Tahoma,Arial,sans-serif;
+	font-size:10pt;
+	color:white;
+	text-shadow: -1px 0 gray, 0 1px gray, 1px 0 gray, 0 -1px gray;
+}
+.user_info a {
+	color:white;
+}

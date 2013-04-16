@@ -1,0 +1,16 @@
+div.login
+{
+	width: 30%;
+	margin-left: 15%;
+	padding-right: 5%;
+	float: left;
+	border-right: 1px solid;
+	min-height: 400px;
+}
+div.register
+{
+	width: 30%;
+	padding-left: 10%;
+	float: left;
+	min-height: 400px;
+}

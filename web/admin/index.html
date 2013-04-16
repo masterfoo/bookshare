@@ -1,0 +1,107 @@
+!# Welcome, traveler!
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=UTF-8>
+	<title>FSU BookShare - Adminstrator</title>
+	<link rel="stylesheet" type="text/css" href="/s/main.css">
+	<link rel="stylesheet" type="text/css" href="/s/admin.css">
+</head>
+<body>
+	<div class=main>
+		<????bookshare:header "Administrator">
+		<div class=menu>Welcome, <span class=login_name>Admin</span>! (<a href=#>logout</a>)</div>
+
+		<div id="user_management">
+			<h2>User Administration</h2>
+			<div style="margin-bottom:10px; position:absolute; top: 0px;right:0px; width:40%">
+				<input id=search_user style="width:70%;"><button>Filter</button>
+			</div>
+
+			<div id="user_list">
+				<table class=user_table>
+					<tr>
+						<th class=utcol_check><input type=checkbox></th>
+						<th class=utcol_name>User Name</th>
+						<th class=utcol_perm>Perm Level</th>
+						<th class=utcol_jdate>Date Joined</th>
+					</tr>
+
+					<!-- Users list here -->
+					<tr>
+						<td><input type=checkbox></td>
+						<td>Example User</td>
+						<td>Registered</td>
+						<td>2013-02-26</td>
+					</tr>
+					<tr>
+						<td><input type=checkbox></td>
+						<td>Admin</td>
+						<td>Administrator</td>
+						<td>2013-02-20</td>
+					</tr>
+					<!-- Users list ends -->
+				</table>
+			</div>
+			<div id="user_op">
+				<h3>With selected:</h3>
+				<button>Lock</button><br>
+				<button>Delete</button><br>
+				<button>View Details</button>
+			</div>
+
+
+		</div>
+
+		<hr>
+
+		<div id="listing_mgmt">
+			<h2>Listing Management</h2>
+			<div style="margin-bottom:10px; position:absolute; top: 0px;right:0px; width:40%">
+				<input id=search_user style="width:70%;"><button>Filter</button>
+			</div>
+			<div id=listing_select>
+				<select size=10>
+					<option>Post 1 (ISBN #)</option>
+					<option>Post 2 (ISBN #)</option>
+					<option>Post 3 (ISBN #)</option>
+					<option>Post 4 (ISBN #)</option>
+					<option>Post 5 (ISBN #)</option>
+					<option>Post 6 (ISBN #)</option>
+					<option>Post 7 (ISBN #)</option>
+					<option>Post 8 (ISBN #)</option>
+					<option>Post 9 (ISBN #)</option>
+					<option>Post 10 (ISBN #)</option>
+					<option>Post 11 (ISBN #)</option>
+					<option>Post 12 (ISBN #)</option>
+					<option>Post 13 (ISBN #)</option>
+					<option>Post 14 (ISBN #)</option>
+					<option>Post 15 (ISBN #)</option>
+					<option>Post 16 (ISBN #)</option>
+					<option>Post 17 (ISBN #)</option>
+					<option>Post 18 (ISBN #)</option>
+					<option>Post 19 (ISBN #)</option>
+					<option>Post 20 (ISBN #)</option>
+					<option>Post 21 (ISBN #)</option>
+					<option>Post 22 (ISBN #)</option>
+					<option>Post 23 (ISBN #)</option>
+					<option>Post 24 (ISBN #)</option>
+					<option>Post 25 (ISBN #)</option>
+					<option>Post 26 (ISBN #)</option>
+					<option>Post 27 (ISBN #)</option>
+					<option>Post 28 (ISBN #)</option>
+					<option>Post 29 (ISBN #)</option>
+					<option>Post 30 (ISBN #)</option>
+				</select>
+			</div>
+			<div id=listing_options>
+				<h3>With Selected:</h3>
+				<button>Delete</button><br>
+				<button>View Details</button>
+			</div>
+		</div>
+
+		<hr>
+	</div>
+</body>
+</html>
