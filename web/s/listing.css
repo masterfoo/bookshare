@@ -28,7 +28,19 @@ div.listing{
 			border:5%;
 			padding:5%;
 	}
-	.poster{
+div.select{
+		margin-left: 20%;
+		margin-right: 20%;
+		margin-top:10px;
+		padding-left: 5%;
+}
+/*	#return{
+		width 24px;
+	}
+	#confirm{
+		width 24px;
+	}
+*/	.poster{
 			font-style:italic;
 			font-size:10pt;
 			position:absolute;
