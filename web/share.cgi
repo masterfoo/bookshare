@@ -21,5 +21,3 @@ use CGI::Simple;
 # If they have the previous share a book cookie data set and they are logged
 # in they will be asked for a few more details about the book and then it will
 # be put into the database
-
-
