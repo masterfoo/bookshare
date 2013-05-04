@@ -5,7 +5,6 @@
 	<meta charset=UTF-8>
 	<title>FSU BookShare</title>
 	<link rel="stylesheet" type="text/css" href="s/main.css">
-	<script type=text/javascript src=js/share.js></script>
 </head>
 <body>
 	<div class=main>
@@ -15,12 +14,11 @@
 		<div class=input>
 		<p class=subtitle>Borrow a Book</p>
 		<form name=borrow>
-			<select>
+			<label for=type>Search by</label>
+			<select name=type>
 				<option>Title</option>
-				<option>Edition</option>
-				<option>Author</option>
 				<option>ISBN</option>
-				<option>Major</option>
+				<option>Author</option>
 			</select>
 			<br><br>
 			<input type=text name=keywords size="20">
@@ -31,23 +29,23 @@
 		<div class=input>
 		<p class=subtitle>Share a Book</p>
 		<form name=share>
-			<label for=title id=title>Title</label>
+			<label for=title>Title</label>
 			<br>
 			<input type=text name=title>
 			<br>
-			<label for=edition id=edition>Edition</label>
+			<label for=edition>Edition</label>
 			<br>
 			<input type=text name=edition>
 			<br>
-			<label for=author id=author>Author</label>
+			<label for=author>Author</label>
 			<br>
 			<input type=text name=author>
 			<br>
-			<label for=isbn id=isbn>ISBN</label>
+			<label for=isbn>ISBN</label>
 			<br>
 			<input type=text name=isbn>
 			<br>
-			<button type=button onclick="shareBook();">Submit</button>
+			<input type=submit value=Share>
 		</form>
 		</div>
 
