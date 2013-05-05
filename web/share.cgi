@@ -5,6 +5,7 @@ use strict;
 
 use DBI;
 use CGI::Simple;
+use CGI::Carp 'fatalsToBrowser';	# send errors to browser for debugging
 
 # "Share a Book" form handler
 # Chris Handwerker - chandwer@student.fitchburgstate.edu
@@ -20,25 +21,50 @@ use CGI::Simple;
 sub session
 {
 	# some function to validate user's session
-	return 0;
+	# returns username if session id is valid
+	my $username = "chandwer";		# just pretending
+	return $username;
 }
 my $q = new CGI::Simple;
 
 my $title = $q->cookie('title');
 my $edition = $q->cookie('edition');
-my $author = $q->cookie('author');
 my $isbn = $q->cookie('isbn');
+my @authors = split('\n',$q->cookie('author')) unless !$q->cookie('author');
 
-if($title && $edition && $author && $isbn)	# user has cookies
+if($title && $edition && $isbn && @authors)	# user has cookies
 {
 	# Validate user session
-	my $sid = $q->cookie('sid');
-
-	if(session($sid))	# user has a session
+	my $username = session($q->cookie('sid'));
+	if($username)	# user has a session
 	{
-		print $q->header();
-		# delete user's cookies
-	
+		# make a db entry for das book
+		my $dbh = DBI->connect("dbi:SQLite:/home/ghandi/db/bookshare.db") or die $DBI::errstr;
+		my $sth;
+
+		# insert authors into 'author' if it isn't already in the db
+		foreach my $author(@authors)
+		{
+			# some SQL magic
+			$sth = $dbh->prepare("
+						INSERT INTO author(author_name) 
+						SELECT * FROM (SELECT ?) AS tmp 
+						WHERE NOT EXISTS
+						(
+							SELECT author_name FROM author WHERE author_name = ?
+						) 
+						LIMIT 1");
+			$sth->execute($author,$author) or die $DBI::errstr;
+		}
+
+		# delete book entry cookies & redirect to user management page
+		my $title_c = $q->cookie(-name => 'title', -value => "deleted", -expires => "Thursday, 01-Jan-1970 00:00:01 GMT");
+		my $edition_c = $q->cookie(-name => 'edition', -value => "deleted", -expires => "Thursday, 01-Jan-1970 00:00:01 GMT");
+		my $author_c = $q->cookie(-name => 'author', -value => "deleted", -expires => "Thursday, 01-Jan-1970 00:00:01 GMT");
+		my $isbn_c = $q->cookie(-name => 'isbn', -value => "deleted", -expires => "Thursday, 01-Jan-1970 00:00:01 GMT");
+		print $q->redirect(-uri=>'user.html',-cookie=>[$title_c,$edition_c,$author_c,$isbn_c]);
+
+		# TODO add some input validation like so
 		# if() # data valid
    		# {	
 		# 	# create db entry

@@ -1,0 +1,72 @@
+// Handles and validaites the "share" form
+
+function shareBook()
+{
+	if(validateForm())
+	{
+		// set cookies
+
+		// redirect to "share.cgi"
+		alert(123);
+	}
+}
+function validateForm()
+{
+	if
+	(
+		document.share.title.value == "" 	||	
+		document.share.edition.value == "" 	||
+		document.share.author.value == "" 	||
+		document.share.isbn.value == ""
+	)
+	{
+		if(document.share.title.value == "")
+		{
+			document.getElementById("title").style.fontWeight = 'bold';
+			document.getElementById("title").style.color = 'red';
+		}
+		else
+		{
+			document.getElementById("title").style.fontWeight = 'normal';
+			document.getElementById("title").style.color = 'black';
+		}
+
+		if(document.share.edition.value == "")
+		{
+			document.getElementById("edition").style.fontWeight = 'bold';
+			document.getElementById("edition").style.color = 'red';
+		}
+		else
+		{
+			document.getElementById("edition").style.fontWeight = 'normal';
+			document.getElementById("edition").style.color = 'black';
+		}
+
+		if(document.share.author.value == "")
+		{
+			document.getElementById("author").style.fontWeight = 'bold';
+			document.getElementById("author").style.color = 'red';
+		}
+		else
+		{
+			document.getElementById("author").style.fontWeight = 'normal';
+			document.getElementById("author").style.color = 'black';
+		}
+
+		if(document.share.isbn.value == "")
+		{
+			document.getElementById("isbn").style.fontWeight = 'bold';
+			document.getElementById("isbn").style.color = 'red';
+		}
+		else
+		{
+			document.getElementById("isbn").style.fontWeight = 'normal';
+			document.getElementById("isbn").style.color = 'black';
+		}
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
