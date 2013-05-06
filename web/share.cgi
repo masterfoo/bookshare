@@ -3,9 +3,10 @@
 use warnings;
 use strict;
 
-use DBI;
 use CGI::Simple;
 use CGI::Carp 'fatalsToBrowser';	# send errors to browser for debugging
+use Business::ISBN;
+use DBI;
 
 # "Share a Book" form handler
 # Chris Handwerker - chandwer@student.fitchburgstate.edu
@@ -22,17 +23,57 @@ sub session
 {
 	# some function to validate user's session
 	# returns username if session id is valid
-	my $username = "chandwer";		# just pretending
+	my $username = "testuser";		# just pretending
 	return $username;
 }
+sub get_isbn
+{
+	# returns properly formatted ISBN-13 if valid
+	# returns false if invalid
+	my $isbn = Business::ISBN->new($_[0]);
+	if($isbn)
+	{
+		if($isbn->is_valid)
+		{
+			my $isbn13 = $isbn->as_isbn13;
+			return $isbn13->as_string;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 my $q = new CGI::Simple;
 
+# cookies
 my $title = $q->cookie('title');
 my $edition = $q->cookie('edition');
 my $isbn = $q->cookie('isbn');
 my @authors = split('\n',$q->cookie('author')) unless !$q->cookie('author');
 
-if($title && $edition && $isbn && @authors)	# user has cookies
+# get
+my $isbn_check = $q->param('isbn');
+
+if($isbn_check)	# user wants to validate their ISBN number
+{
+	$isbn_check = get_isbn($isbn_check);
+	if($isbn_check)
+	{
+		print $q->header(-status => '200 OK');
+		print $isbn_check;
+	}
+	else
+	{
+		print $q->header(-status => '400 Bad Request');
+	}
+}
+elsif($title && $edition && $isbn && @authors)	# user has cookies
 {
 	# Validate user session
 	my $username = session($q->cookie('sid'));
@@ -42,10 +83,14 @@ if($title && $edition && $isbn && @authors)	# user has cookies
 		my $dbh = DBI->connect("dbi:SQLite:/home/ghandi/db/bookshare.db") or die $DBI::errstr;
 		my $sth;
 
+		my @author_ref_ids;
+		my $book_ref_id;
+		my $user_id;
+
 		# insert authors into 'author' if it isn't already in the db
 		foreach my $author(@authors)
 		{
-			# some SQL magic
+			#insert author unless a duplicate
 			$sth = $dbh->prepare("
 						INSERT INTO author(author_name) 
 						SELECT * FROM (SELECT ?) AS tmp 
@@ -55,7 +100,56 @@ if($title && $edition && $isbn && @authors)	# user has cookies
 						) 
 						LIMIT 1");
 			$sth->execute($author,$author) or die $DBI::errstr;
+
+			# get author_ref_id(s)
+			$sth = $dbh->prepare("
+						SELECT author_ref_id FROM author
+						WHERE author_name=?");
+			$sth->execute($author);
+			push(@author_ref_ids,$sth->fetchrow_array);
 		}
+		
+		# insert book into 'books' if it isn't already in the db	
+		$sth = $dbh->prepare("
+						INSERT INTO books(title,edition,isbn)
+						SELECT * FROM (SELECT ?,?,?) AS tmp
+						WHERE NOT EXISTS
+						(
+							SELECT title,edition,isbn FROM books
+							WHERE title=? AND edition=? AND isbn=?
+						)
+						LIMIT 1");
+		$sth->execute($title,$edition,$isbn,$title,$edition,$isbn);
+
+		$sth = $dbh->prepare("
+						SELECT book_ref_id FROM books
+						WHERE title=? AND edition=? AND isbn=?");
+		$sth->execute($title,$edition,$isbn);
+		$book_ref_id = $sth->fetchrow_array;
+
+		# generate book_author listings
+		foreach my $author_id(@author_ref_ids)
+		{
+			$sth = $dbh->prepare("
+						INSERT INTO book_author(book_ref_id,author_ref_id)
+						SELECT * FROM (SELECT ?,?) AS tmp
+						WHERE NOT EXISTS
+						(
+							SELECT book_ref_id,author_ref_id FROM book_author
+							WHERE book_ref_id=? AND author_ref_id=?
+						)
+						LIMIT 1");
+			$sth->execute($book_ref_id,$author_id,$book_ref_id,$author_id);
+		}
+
+		# get user id
+		$sth = $dbh->prepare("SELECT user_id FROM users WHERE username=?");
+		$sth->execute($username);
+		$user_id = $sth->fetchrow_array;
+
+		# make a book listing
+		$sth = $dbh->prepare("INSERT INTO listings (user_id,book_ref_id) VALUES (?,?)");
+		$sth->execute($user_id,$book_ref_id);
 
 		# delete book entry cookies & redirect to user management page
 		my $title_c = $q->cookie(-name => 'title', -value => "deleted", -expires => "Thursday, 01-Jan-1970 00:00:01 GMT");

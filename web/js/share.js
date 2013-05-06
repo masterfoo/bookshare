@@ -20,6 +20,39 @@ function setCookie(name,value)
 	var c_value = escape(value)+"; explire="+expire.toUTCString();
 	document.cookie=name+"="+c_value;
 }
+function validateISBN()
+{
+	if(document.share.isbn.value != "")
+	{
+		var request = new XMLHttpRequest();
+		request.onreadystatechange = function()
+		{
+			if(request.readyState==4)
+			{
+				if(request.status == 200)	// valid isbn
+				{
+					// fix formatting
+					document.share.isbn.value = request.responseText;
+					// reset label
+					document.getElementById("isbn").style.color = 'black';
+					document.getElementById("isbn").style.fontWeight = 'normal';
+					document.getElementById("isbn").innerHTML = "ISBN";
+				}
+				else	// invalid isbn
+				{
+					// clear form
+					document.share.isbn.value = "";
+					// set label
+					document.getElementById("isbn").style.color = 'red';
+					document.getElementById("isbn").style.fontWeight = 'normal';
+					document.getElementById("isbn").innerHTML = "ISBN - Invalid Format";
+				}
+			}
+		}
+		request.open("GET","share.cgi?isbn="+document.share.isbn.value,true);
+		request.send();
+	}
+}
 function validateForm()
 {
 	if(document.share.title.value == "")

@@ -31,6 +31,10 @@
 		<div class=input>
 		<p class=subtitle>Share a Book</p>
 		<form name=share>
+			<label for=isbn id=isbn>ISBN</label>
+			<br>
+			<input type=text name=isbn onblur="validateISBN();">
+			<br>
 			<label for=title id=title>Title</label>
 			<br>
 			<input type=text name=title>
@@ -38,10 +42,6 @@
 			<label for=edition id=edition>Edition</label>
 			<br>
 			<input type=text name=edition>
-			<br>
-			<label for=isbn id=isbn>ISBN</label>
-			<br>
-			<input type=text name=isbn>
 			<br>
 			<label for=author id=author>Author(s)</label>
 			<br>
