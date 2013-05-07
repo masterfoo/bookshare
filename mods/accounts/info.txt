@@ -1,0 +1,13 @@
+# Kraknet accounts management system.
+# mod: accounts
+# author: krakissi
+
+# scripts
+auth=auth
+fail=fail_message
+user_ip=ip_addr
+user_info=user_info
+user=get_user
+logout=logout
+login_ref=referrer.py
+reg_error=reg_error
