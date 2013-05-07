@@ -9,6 +9,7 @@ function shareBook()
 		setCookie('edition',document.share.edition.value);
 		setCookie('author',document.share.author.value);
 		setCookie('isbn',document.share.isbn.value);
+
 		// redirect to form handler
 		window.location = "share.cgi";
 	}
@@ -31,8 +32,31 @@ function validateISBN()
 			{
 				if(request.status == 200)	// valid isbn
 				{
-					// fix formatting
-					document.share.isbn.value = request.responseText;
+					// parse XML
+					xml = request.responseXML;
+					// fix isbn formatting
+					document.share.isbn.value = xml.getElementsByTagName("isbn")[0].childNodes[0].nodeValue;
+					// get title
+					var title = xml.getElementsByTagName("title");
+					document.share.title.value = title.length > 0 ? title[0].childNodes[0].nodeValue : "";
+					// get edition
+					var edition = xml.getElementsByTagName("edition");
+					document.share.edition.value = edition.length > 0 ? edition[0].childNodes[0].nodeValue : "";
+					// get authors
+					var author = xml.getElementsByTagName("author");
+					if(author.length > 0)
+					{
+						document.share.author.value = "";
+						for(var i=0;i<author.length;i++)
+						{
+							document.share.author.value += author[i].childNodes[0].nodeValue + "\n";
+						}
+					}
+					else
+					{
+						document.share.author.value = "";
+					}
+
 					// reset label
 					document.getElementById("isbn").style.color = 'black';
 					document.getElementById("isbn").style.fontWeight = 'normal';
@@ -49,7 +73,7 @@ function validateISBN()
 				}
 			}
 		}
-		request.open("GET","share.cgi?isbn="+document.share.isbn.value,true);
+		request.open("GET","isbncheck.cgi?isbn="+document.share.isbn.value,true);
 		request.send();
 	}
 }
@@ -65,18 +89,7 @@ function validateForm()
 		document.getElementById("title").style.fontWeight = 'normal';
 		document.getElementById("title").style.color = 'black';
 	}
-
-	if(document.share.edition.value == "")
-	{
-		document.getElementById("edition").style.fontWeight = 'bold';
-		document.getElementById("edition").style.color = 'red';
-	}
-	else
-	{
-		document.getElementById("edition").style.fontWeight = 'normal';
-		document.getElementById("edition").style.color = 'black';
-	}
-
+	
 	if(document.share.author.value == "")
 	{
 		document.getElementById("author").style.fontWeight = 'bold';
@@ -102,7 +115,6 @@ function validateForm()
 	if
 	(
 		document.share.title.value == "" 	||	
-		document.share.edition.value == "" 	||
 		document.share.author.value == "" 	||
 		document.share.isbn.value == ""
 	)

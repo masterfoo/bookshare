@@ -63,3 +63,9 @@ p.subtitle
 	padding-bottom: 10px;
 	font-size: 1.2em;
 }
+p.asterisk
+{
+	color: #FF0000;
+	display: inline;
+	margin-left: 5px;
+}

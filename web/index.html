@@ -33,11 +33,11 @@
 		<form name=share>
 			<label for=isbn id=isbn>ISBN</label>
 			<br>
-			<input type=text name=isbn onblur="validateISBN();">
+			<input type=text name=isbn onblur="validateISBN();"><p class=asterisk>*</p>
 			<br>
 			<label for=title id=title>Title</label>
 			<br>
-			<input type=text name=title>
+			<input type=text name=title><p class=asterisk>*</p>
 			<br>
 			<label for=edition id=edition>Edition</label>
 			<br>
@@ -46,8 +46,12 @@
 			<label for=author id=author>Author(s)</label>
 			<br>
 			<textarea cols=23 rows=4 wrap=off placeholder="Enter each author on a new line..." name=author></textarea>
+			<p class=asterisk>*</p>
 			<br>
 			<button type=button onclick="shareBook();">Submit</button>
+			<br>
+			<br>
+			<p class=asterisk>* - required fields</p>
 		</form>
 		</div>
 

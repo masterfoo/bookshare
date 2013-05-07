@@ -57,23 +57,9 @@ my $edition = $q->cookie('edition');
 my $isbn = $q->cookie('isbn');
 my @authors = split('\n',$q->cookie('author')) unless !$q->cookie('author');
 
-# get
-my $isbn_check = $q->param('isbn');
-
-if($isbn_check)	# user wants to validate their ISBN number
-{
-	$isbn_check = get_isbn($isbn_check);
-	if($isbn_check)
-	{
-		print $q->header(-status => '200 OK');
-		print $isbn_check;
-	}
-	else
-	{
-		print $q->header(-status => '400 Bad Request');
-	}
-}
-elsif($title && $edition && $isbn && @authors)	# user has cookies
+$isbn = get_isbn($isbn);
+ 
+if($title && $isbn && @authors)	# user has cookies
 {
 	# Validate user session
 	my $username = session($q->cookie('sid'));
@@ -116,15 +102,18 @@ elsif($title && $edition && $isbn && @authors)	# user has cookies
 						WHERE NOT EXISTS
 						(
 							SELECT title,edition,isbn FROM books
-							WHERE title=? AND edition=? AND isbn=?
+							WHERE title=? AND (edition=? OR edition IS NULL) AND isbn=?
 						)
 						LIMIT 1");
-		$sth->execute($title,$edition,$isbn,$title,$edition,$isbn);
+		$sth->execute($title,$edition,$isbn,$title,$edition,$isbn) or die $DBI::errstr;
 
+		# get book ref id	
 		$sth = $dbh->prepare("
 						SELECT book_ref_id FROM books
-						WHERE title=? AND edition=? AND isbn=?");
-		$sth->execute($title,$edition,$isbn);
+						WHERE title=? AND (edition=? OR edition IS NULL) AND isbn=?");
+
+		$sth->execute($title,$edition,$isbn) or die $DBI::errstr;
+		
 		$book_ref_id = $sth->fetchrow_array;
 
 		# generate book_author listings
@@ -139,17 +128,17 @@ elsif($title && $edition && $isbn && @authors)	# user has cookies
 							WHERE book_ref_id=? AND author_ref_id=?
 						)
 						LIMIT 1");
-			$sth->execute($book_ref_id,$author_id,$book_ref_id,$author_id);
+			$sth->execute($book_ref_id,$author_id,$book_ref_id,$author_id) or die $DBI::errstr;
 		}
 
 		# get user id
 		$sth = $dbh->prepare("SELECT user_id FROM users WHERE username=?");
-		$sth->execute($username);
+		$sth->execute($username) or die $DBI::errstr;
 		$user_id = $sth->fetchrow_array;
 
 		# make a book listing
 		$sth = $dbh->prepare("INSERT INTO listings (user_id,book_ref_id) VALUES (?,?)");
-		$sth->execute($user_id,$book_ref_id);
+		$sth->execute($user_id,$book_ref_id) or die $DBI::errstr;
 
 		# delete book entry cookies & redirect to user management page
 		my $title_c = $q->cookie(-name => 'title', -value => "deleted", -expires => "Thursday, 01-Jan-1970 00:00:01 GMT");
