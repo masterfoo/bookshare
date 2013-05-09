@@ -5,11 +5,13 @@ import re
 import os
 
 refex=re.compile(r".*/cgi-bin/.*$")
-ref=os.environ['HTTP_REFERER']
-
-sys.stdout.write("<input type=hidden name=ref value=\"")
-if refex.match(ref):
-	sys.stdout.write("/")
+if 'HTTP_REFERER' in os.environ:
+	ref=os.environ['HTTP_REFERER']
+	sys.stdout.write("<input type=hidden name=ref value=\"")
+	if refex.match(ref):
+		sys.stdout.write("/")
+	else:
+		sys.stdout.write(ref)
+	sys.stdout.write("\">")
 else:
-	sys.stdout.write(ref)
-sys.stdout.write("\">")
+	sys.stdout.write("<input type=hidden name=ref value=\"/\">")

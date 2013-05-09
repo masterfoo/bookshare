@@ -6,6 +6,9 @@
 	Crudely hacked together tool to add users to Kraknet.
 	Crudely modified to allow users to add themselves.
 	Crudely retrofitted with SQLite3.
+	Crudely adapted to bookshare on krakws.
+
+	TODO: Must have email and permission_level set to create a user in this database.
 */
 #define _XOPEN_SOURCE
 
@@ -17,7 +20,7 @@
 #include <regex.h>
 #include <sqlite3.h>
 
-#define knet_db_location "/home/www-data/kraknet.db"
+#define knet_db_location "/home/ghandi/db/bookshare.db"
 
 char *result_user=NULL;
 
@@ -65,13 +68,21 @@ int main(int argc, char**argv){
 	for(a=s=str;s-str<post_length;s++){
 		if(*s=='='){
 			*(s++)=0;
-			if(!strcmp(a,"user"))mode=pm_user;
-			else if(!strcmp(a,"pw"))mode=pm_pw;
-			else if(!strcmp(a,"pwr"))mode=pm_pwr;
+			if(!strcmp(a,"user"))
+				mode=pm_user;
+			else if(!strcmp(a,"pw"))
+				mode=pm_pw;
+			else if(!strcmp(a,"pwr"))
+				mode=pm_pwr;
 			else mode=pm_null;
-			for(a=s;*s;s++)if(*s==';'||*s=='&')break;*s=0;
+			for(a=s;*s;s++)
+				if(*s==';'||*s=='&')
+					break;
+			*s=0;
 			switch(mode){
-				case pm_user: strcpy(user,a); break;
+				case pm_user:
+					strcpy(user,a);
+					break;
 				case pm_pw:
 					strcpy(pass,a);
 					unescape_url(pass);
@@ -120,8 +131,9 @@ int main(int argc, char**argv){
 	fprintf(stderr,"[des] hash: %s\n",hash);
 
 	//Check if user exists.
-	sprintf(str,"select user from users where user=\"%s\";",user);
-	if(sqlite3_open(knet_db_location,&db))sqlite3_close(db);
+	sprintf(str,"select username from users where username=\"%s\";",user);
+	if(sqlite3_open(knet_db_location,&db))
+		sqlite3_close(db);
 	a=NULL;
 	switch(sqlite3_exec(db, str, callback_user, 0, &a)){
 		case SQLITE_OK:
@@ -141,8 +153,9 @@ int main(int argc, char**argv){
 	sqlite3_close(db);
 
 	//If not, add user.
-	sprintf(str,"insert into users(user,hash,pretty) values(\"%s\",\"%s\",\"%s\");",user,hash,user);
-	if(sqlite3_open(knet_db_location,&db))sqlite3_close(db);
+	sprintf(str,"insert into users(username,password_hash) values(\"%s\",\"%s\");",user,hash);
+	if(sqlite3_open(knet_db_location,&db))
+		sqlite3_close(db);
 	a=NULL;
 	switch(sqlite3_exec(db, str, callback, 0, &a)){
 		case SQLITE_OK:
@@ -164,7 +177,9 @@ int main(int argc, char**argv){
 
 int sanitize(char *a){
 	int l=0;
-	do if(*a=='\n'||*a=='\r')break; while(*(a++) && ++l);
+	do if(*a=='\n'||*a=='\r')
+		break;
+	while(*(a++)&&++l);
 	*a=0;
 	return l;
 }
@@ -193,7 +208,7 @@ void unescape_url(char *url){
 static int callback_user(void *NotUsed, int argc, char **argv, char **azColName){
 	while(argc--){
 		fprintf(stderr,"[sql] %s: %s\n",*azColName,*argv);
-		if(!strcmp(*azColName,"user"))
+		if(!strcmp(*azColName,"username"))
 			strcpy(result_user=calloc(1+strlen(*argv),sizeof(char)),*argv);
 		argv++,azColName++;
 	}

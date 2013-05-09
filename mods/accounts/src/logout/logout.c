@@ -5,29 +5,31 @@
 #include <unistd.h>
 #include <sqlite3.h>
 
-#define knet_db_location "/home/www-data/kraknet.db"
-#define knet_sids_location "/tmp/kraknet/sids.db"
+#define knet_db_location "/home/ghandi/db/bookshare.db"
+#define knet_sids_location "/home/ghandi/db/sids.db"
 
 void fail();
 static int callback(void *NotUsed, int argc, char **argv, char **azColName);
 
 int main(){
 	char *str,*s,*a;
+	char *cookie;
 	char *sid;
 	int i;
 	sqlite3 *db;
 
-	char *cookie=getenv("HTTP_COOKIE");
-
 	printf("Content-Type: text/html; charset=UTF-8\n\n");
-
-	if(!cookie) fail();
+	if(!(cookie=getenv("HTTP_COOKIE")))
+		fail();
 
 	//Parse sid
 	sid=calloc(128,sizeof(char));
 	a=str;
 	if(a=strstr(cookie,"sid=")){
-		for(s=a;*s;s++)if(*s==';'||*s=='&')break;*s=0;
+		for(s=a;*s;s++)
+			if(*s==';'||*s=='&')
+				break;
+		*s=0;
 		strcpy(sid,a+4);
 	}
 
@@ -37,7 +39,6 @@ int main(){
 	if(sqlite3_open(knet_sids_location,&db)){
 		sqlite3_close(db);
 		fail();
-
 	}
 	a=NULL;
 	switch(sqlite3_exec(db, str, callback, 0, &a)){
@@ -52,7 +53,6 @@ int main(){
 	sqlite3_close(db);
 
 	printf("<!DOCTYPE html><html><head><title>Killing Your Session</title><meta http-equiv=\"refresh\" content=\"0;url=%s\"></head></html>\n",(a=getenv("HTTP_REFERER"))?a:"/");
-
 	return 0;
 }
 

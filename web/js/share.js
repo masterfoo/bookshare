@@ -1,4 +1,5 @@
 // Handles and validaites the "share" form
+// Written by Chris Handwerker - chandwer@student.fitchburgstate.edu
 
 function shareBook()
 {

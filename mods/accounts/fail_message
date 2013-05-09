@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ "m=f" = "$QUERY_STRING" ]; then
+        echo "No dice.<br><br>"
+fi

@@ -21,10 +21,16 @@ int main(int argc, char**argv){
 		if(!strncmp(str,"NO",2))e++;
 		if(strncmp(str,"OK",2))e++;
 	}
-	user=getenv("kraknet_user");if(!user)e++;
-	ip=getenv("kraknet_user_ip");if(!ip)e++;
+	if(!(user=getenv("kraknet_user")))
+		e++;
+	if(!(ip=getenv("kraknet_user_ip")))
+		e++;
 
-	if(!e)printf("<span style=\"white-space:pre;\">Hello, %s!\n(%s)\n<a href=/manager/>Manage</a>&nbsp;|&nbsp;<a href=/logout.cgi>Logout</a></span>",user,ip);
-	else printf("<a href=/login.cgi>Login</a>");
+	if(!e)
+		printf(
+			"Hello, %s!\n",
+			user
+		);
+	else printf("<a href=/register.html>Login</a>");
 	return 0;
 }

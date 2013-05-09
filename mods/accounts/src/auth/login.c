@@ -15,8 +15,8 @@
 #include <unistd.h>
 #include <sqlite3.h>
 
-#define knet_db_location "/home/www-data/kraknet.db"
-#define knet_sids_location "/tmp/kraknet/sids.db"
+#define knet_db_location "/home/ghandi/db/bookshare.db"
+#define knet_sids_location "/home/ghandi/db/sids.db"
 
 //Result of SQL requests
 char *result_hash=NULL;
@@ -25,7 +25,7 @@ char *result_hash=NULL;
 char x2c(char *what);
 void unescape_url(char *url);
 char hex15(int val);
-void fail();
+void fail(const char *msg);
 static int callback(void *NotUsed, int argc, char **argv, char **azColName);
 
 /* Start of main function */
@@ -45,8 +45,12 @@ int main(){
 
 	//Read POST (fail on empty)
 	str=calloc(n=256,sizeof(char));
-	if(getline(&str,&n,stdin)<=0)fail();
-	for(s=str;*s;s++)if(*s=='\r'||*s=='\n')break;*s=0;
+	if(getline(&str,&n,stdin)<=0)
+		fail("No POST data. (0x7)");
+	for(s=str;*s;s++)
+		if(*s=='\r'||*s=='\n')
+			break;
+	*s=0;
 
 	//Parse user, pass, and ref from POST
 	user=calloc(32,sizeof(char));
@@ -55,25 +59,34 @@ int main(){
 	*user=*pass=*ref=0;
 
 	a=str;
-	do{	for(s=a;*s;s++)if(*s=='&'||*s==';')break;
-		i=*s;*s=0;
-		if(!strncmp(a,"user=",5)) strcpy(user,a+5);
-		else if(!strncmp(a,"pass=",5)) strcpy(pass,a+5);
-		else if(!strncmp(a,"ref=",4)) strcpy(ref,a+4);
-		else if(!strcmp(a,"persist=on")) persistent=1;
+	do{	for(s=a;*s;s++)
+			if(*s=='&'||*s==';')
+				break;
+		i=*s;
+		*s=0;
+		if(!strncmp(a,"user=",5))
+			strcpy(user,a+5);
+		else if(!strncmp(a,"pass=",5))
+			strcpy(pass,a+5);
+		else if(!strncmp(a,"ref=",4))
+			strcpy(ref,a+4);
+		else if(!strcmp(a,"persist=on"))
+			persistent=1;
 
-		*s=i;a=s+1;
+		*s=i;
+		a=s+1;
 	}	while(i);
 
 	unescape_url(user);
 	unescape_url(pass);
 	unescape_url(ref);
 
+
 	//Find user in the database and read in their password hash
-	sprintf(str,"select users.hash from users where users.user=\"%s\";",user);
+	sprintf(str,"select users.password_hash from users where users.username=\"%s\";",user);
 	if(sqlite3_open(knet_db_location,&db)){
 		sqlite3_close(db);
-		fail();
+		fail("Could not attach to database (0x1)");
 	}
 
 	a=NULL;
@@ -84,10 +97,11 @@ int main(){
 			fprintf(stderr,"[sql] Error: %s\n",a);
 			sqlite3_free(a);
 			sqlite3_close(db);
-			fail();
+			fail("Hash recovery error. (0x6)");
 	}
 	sqlite3_close(db);
-	if(!result_hash)fail();
+	if(!result_hash)
+		fail("Hash not present. (0x5)");
 
 	//Hash pass from POST
 	memset(chunk,0,9*sizeof(char));
@@ -111,13 +125,15 @@ int main(){
 	fprintf(stderr,"computed hash: %s\n",hash);
 
 	//Compare passwords
-	if(strcmp(hash,result_hash))fail();
+	if(strcmp(hash,result_hash))
+		fail("Password mismatch. (0x4)");
 
 	//Get a session ID from random data
 	urnd=fopen("/dev/urandom","r");
 	sid=calloc(256,sizeof(char));
 	memset(sid,0,256);
-	if(!urnd)return -1;
+	if(!urnd)
+		return -1;
 	for(i=32,s=sid;i--;s++){
 		c=getc(urnd);
 		*(s++)=hex15((c>>4)&15);
@@ -126,13 +142,13 @@ int main(){
 	fclose(urnd);
 
 	//Set the SID cookie (NOTE: user name is no longer cookied.)
-	printf("Set-Cookie: sid=%s; Path=/; Domain=.krakissi.net%s\n",sid,(persistent)?"; Max-Age=2620800":"");
+	printf("Set-Cookie: sid=%s; Path=/%s\n",sid,(persistent)?"; Max-Age=2620800":"");
 
 	//Save SID to SQLite DB
 	sprintf(str,"insert into sids(sid,user,ip) values (\"%s\",\"%s\",\"%s\");",sid,user,getenv("REMOTE_ADDR"));
 	if(sqlite3_open(knet_sids_location,&db)){
 		sqlite3_close(db);
-		fail();
+		fail("Insertion error. (0x3)");
 	}
 
 	a=NULL;
@@ -143,12 +159,13 @@ int main(){
 			fprintf(stderr,"[sql] Error: %s\n",a);
 			sqlite3_free(a);
 			sqlite3_close(db);
-			fail();
+			fail("SQLite Error. (0x2)");
 	}
 	sqlite3_close(db);
 
 	//Redirect
-	if(strstr(ref,"/login.cgi")||!*ref)strcpy(ref,"/");
+	if(strstr(ref,"/register.html")||!*ref)
+		strcpy(ref,"/");
 	printf(
 		"\n<!DOCTYPE html>\n"
 		"<html><head><meta http-equiv=\"refresh\" content=\"1;url=%s\">Redirecting to %s ...</head></html>\n",
@@ -176,14 +193,15 @@ void unescape_url(char *url){
 	url[x]=0;
 }
 char hex15(int val){
-	if(val<10)return '0'+val;
+	if(val<10)
+		return '0'+val;
 	return val+'a'-10;
 }
-void fail(){
-	fputs(
-		"\n<!DOCTYPE html>"
-		"<html><head><meta http-equiv=\"refresh\" content=\"0;url=/login.cgi?m=f\"></head></html>\n",
-		stdout
+void fail(const char *msg){
+	printf(
+		"\n<!DOCTYPE html>\n"
+		"<html><head><meta http-equiv=\"refresh\" content=\"1;url=/register.html?m=f\"></head><body>Failed.<br>%s</body></html>\n",
+		msg
 	);
 	exit(0);
 }
@@ -192,10 +210,9 @@ void fail(){
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 	while(argc--){
 		fprintf(stderr,"[sql] %s: %s\n",*azColName,*argv);
-		if(!strcmp(*azColName,"hash"))
+		if(!strcmp(*azColName,"password_hash"))
 			strcpy(result_hash=calloc(1+strlen(*argv),sizeof(char)),*argv);
 		argv++,azColName++;
 	}
-
 	return 0;
 }

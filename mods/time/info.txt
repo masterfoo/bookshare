@@ -1,0 +1,4 @@
+# Kraknet Time Module
+# Neat little wrappers to common requests from date(1).
+time=time.sh
+year=year.sh

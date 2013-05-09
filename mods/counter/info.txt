@@ -1,0 +1,3 @@
+# Kraknet Counter Module
+# Extremely primitive counter.
+display=display
