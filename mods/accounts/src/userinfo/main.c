@@ -28,7 +28,7 @@ int main(int argc, char**argv){
 
 	if(!e)
 		printf(
-			"Hello, %s!\n",
+			"Hello, %s! <a href=/cgi-bin/logout>Logout</a>",
 			user
 		);
 	else printf("<a href=/register.html>Login</a>");

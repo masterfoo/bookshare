@@ -8,7 +8,8 @@
 	Crudely retrofitted with SQLite3.
 	Crudely adapted to bookshare on krakws.
 
-	TODO: Must have email and permission_level set to create a user in this database.
+	TODO: Must have email and permission_level set to create a user in this
+	database.
 */
 #define _XOPEN_SOURCE
 
@@ -23,14 +24,15 @@
 #define knet_db_location "/home/ghandi/db/bookshare.db"
 
 char *result_user=NULL;
+enum post_mode { pm_null, pm_user, pm_pw, pm_pwr, pm_email };
 
 char x2c(char *what);
 int sanitize(char *a);
-void close_connection();
 void unescape_url(char *url);
 static int callback_user(void *NotUsed, int argc, char **argv, char **azColName);
 static int callback(void *NotUsed, int argc, char **argv, char **azColName);
-enum post_mode { pm_null, pm_user, pm_pw, pm_pwr }; 
+
+static void fail(const char *msg);
 
 /* Start of main function */
 int main(int argc, char**argv){
@@ -41,25 +43,21 @@ int main(int argc, char**argv){
 	sqlite3 *db;
 	size_t n;
 
-	regex_t loweral,min4;
-	regcomp(&loweral,"\\`[a-z]\\{4,31\\}\\'",REG_NOSUB);
-	regcomp(&min4,"\\`.\\{4,63\\}\\'",REG_NOSUB);
+	// Email hackery
+	char *email=calloc(256,sizeof(char));
+	*email=0;
+	char *es;
 
-	//A little care for the receiving browser.
-	atexit(close_connection);
+	regex_t loweral,min4,fsuedu;
+	regcomp(&loweral,"\\`[a-z]\\{4,31\\}[0-9]\\{0,2\\}\\'",REG_NOSUB);
+	regcomp(&min4,"\\`.\\{4,63\\}\\'",REG_NOSUB);
+	regcomp(&fsuedu,"fitchburgstate\\.edu\\'",REG_NOSUB);
 
 	//Get POST info
 	str=calloc(n=256,sizeof(char));
 	getline(&str,&n,stdin);
 	post_length=sanitize(str);
 
-	//Begin the reply
-	printf(	//Internet standard is \r\n
-		"Content-type: text/html; charset=UTF-8\r\n\r\n"
-		"<!DOCTYPE html><html><head>"
-		"<title>Kraknet Registration</title></head>"
-		"<body>\r\n"
-	);
 
 	//Get user and password from POST.
 	passr=calloc(64,sizeof(char));*passr=0;
@@ -70,6 +68,8 @@ int main(int argc, char**argv){
 			*(s++)=0;
 			if(!strcmp(a,"user"))
 				mode=pm_user;
+			else if(!strcmp(a,"email"))
+				mode=pm_email;
 			else if(!strcmp(a,"pw"))
 				mode=pm_pw;
 			else if(!strcmp(a,"pwr"))
@@ -91,26 +91,30 @@ int main(int argc, char**argv){
 					strcpy(passr,a);
 					unescape_url(passr);
 					break;
+				case pm_email:
+					strcpy(email,a);
+					unescape_url(email);
+					break;
 			}
 			a=s+1;
 		}
 	}
-	if(!*user||!*pass||!*passr){
-		printf("Missing information.\r\n");
-		return -1;
+	if(*email){
+		if(regexec(&fsuedu,email,0,NULL,0))
+			fail("Must be a fitchburgstate.edu address.");
+		strcpy(user,email);
+		if(es=strchr(user,'@'))
+			*es=0;
+		else fail("Not an email address.");
 	}
-	if(strcmp(pass,passr)){
-		printf("Passwords do not match.\r\n");
-		return -1;
-	}
-	if(regexec(&min4,pass,0,NULL,0)){
-		printf("Password must be at least 4 characters and no more than 63.\r\n");
-		return -1;
-	}
-	if(regexec(&loweral,user,0,NULL,0)){
-		printf("Username must be 4 to 31 characters, and all lowercase letters.\r\n");
-		return -1;
-	}
+	if(!*user||!*pass||!*passr)
+		fail("Missing information.");
+	if(strcmp(pass,passr))
+		fail("Passwords do not match.");
+	if(regexec(&min4,pass,0,NULL,0))
+		fail("Password must be at least 4 characters and no more than 63.");
+	if(regexec(&loweral,user,0,NULL,0))
+		fail("Username must be 4 to 31 characters, and all lowercase letters.");
 
 	//If everything checks out, 'generate' salt.
 	salt=calloc(3,sizeof(char));
@@ -141,19 +145,17 @@ int main(int argc, char**argv){
 		default:
 			fprintf(stderr,"[sql] Error: %s\n",a);
 			sqlite3_close(db);
-			printf("Database error.\r\n");
-			return -1;
+			fail("Database error.");
 	}
 	if(result_user){
-		printf("User name already in use.\r\n");
 		sqlite3_close(db);
-		return -1;
+		fail("User name already in use.");
 	}
 	sqlite3_free(a);
 	sqlite3_close(db);
 
 	//If not, add user.
-	sprintf(str,"insert into users(username,password_hash) values(\"%s\",\"%s\");",user,hash);
+	sprintf(str,"insert into users(username,password_hash,email,permission_level) values(\"%s\",\"%s\",\"%s\",\"1\");",user,hash,email);
 	if(sqlite3_open(knet_db_location,&db))
 		sqlite3_close(db);
 	a=NULL;
@@ -163,14 +165,21 @@ int main(int argc, char**argv){
 		default:
 			fprintf(stderr,"[sql] Error: %s\n",a);
 			sqlite3_close(db);
-			printf("Database error.\r\n");
-			return -1;
+			fail("Database error.");
 	}
 	sqlite3_free(a);
 	sqlite3_close(db);
 
-	//Done.
-	printf("Ok. <a href=/login.cgi>Login</a> with your new credentials.\r\n");
+	// Begin the reply.
+	printf(
+		"Content-type: text/html; charset=UTF-8\n\n"
+		"<!DOCTYPE html>\n<html><head>\n"
+		"<title>Kraknet Registration</title>\n"
+		"<meta http-equiv=\"refresh\" content=\"1;url=/register.html\">\n"
+		"</head><body>\n"
+		"Registration successful. <a href=/register.html>Login</a> with your new credentials or wait to be redirected.\n"
+		"</body></html>\n"
+	);
 	return 0;
 }
 /* End of main function */
@@ -182,9 +191,6 @@ int sanitize(char *a){
 	while(*(a++)&&++l);
 	*a=0;
 	return l;
-}
-void close_connection(){
-	printf("</body></html>\r\n");
 }
 char x2c(char *what){
 	register char digit;
@@ -222,4 +228,19 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 	}
 
 	return 0;
+}
+
+static void fail(const char *msg){
+	printf(
+		"Content-type: text/html; charset=UTF-8\n\n"
+		"<!DOCTYPE html>\n<html><head>\n"
+		"<title>(Failed) Kraknet Registration</title>\n"
+		"<meta http-equiv=\"refresh\" content=\"2;url=/register.html\">\n"
+		"</head><body>\n"
+		"%s<br>\n"
+		"You will be redirected to the registration page.<br>\n"
+		"</body></html>\n",
+		msg
+	);
+	exit(-1);
 }

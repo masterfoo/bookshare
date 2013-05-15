@@ -10,7 +10,7 @@
 <body>
 	<div class=main>
 		<????bookshare:header>
-		<div class=menu><br><br></div>
+		<div class=menu><????accounts:user_info></div>
 		<div class=login>
 			<p class=subtitle>Log In</p>
 			<span style="color:#FF0000;"><????accounts:fail></span>
@@ -18,12 +18,12 @@
 				<????accounts:login_ref>
 				<label for=user>Username</label>
 				<br>
-				<input type=text name=user>
+				<input id=user type=text name=user>
 				<br>
 				<br>
 				<label for=pass>Password</label>
 				<br>
-				<input type=password name=pass>
+				<input id=pass type=password name=pass>
 				<br>
 				<br>
 				<input type=checkbox id=persist name=persist checked>
@@ -36,25 +36,20 @@
 		</div>
 		<div class=register>
 			<p class=subtitle>Register</p>
-			<form name=login action=# method=post>
-				<label for=username>Username</label>
-				<br>
-				<input type=text name=username>
-				<br>
-				<br>
-				<label for=password>Password</label>
-				<br>
-				<input type=password name=password>
-				<br>
-				<br>
-				<label for=confirmPassword>Confirm Password</label>
-				<br>
-				<input type=password name=confirmPassword>
-				<br>
-				<br>
+			<form name=login action=/cgi-bin/register method=post>
 				<label for=email>Fitchburg State eMail</label>
 				<br>
-				<input type=text name=email>
+				<input id=email type=text name=email>
+				<br>
+				<br>
+				<label for=pw>Password</label>
+				<br>
+				<input id=pw type=password name=pw>
+				<br>
+				<br>
+				<label for=pwr>Confirm Password</label>
+				<br>
+				<input id=pwr type=password name=pwr>
 				<br>
 				<br>
 				<input type=submit value=Submit>

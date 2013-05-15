@@ -3,3 +3,4 @@
 # 2013
 header=header.pl
 listings=listings.pl
+search=search.pl

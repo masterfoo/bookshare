@@ -7,6 +7,8 @@ use CGI::Carp 'fatalsToBrowser';	# send errors to browser for debugging
 use Business::ISBN;
 use DBI;
 
+require '/home/ghandi/mods/bookshare/bookshare.pl';
+
 # "Share a Book" form handler
 # Chris Handwerker - chandwer@student.fitchburgstate.edu
 #
@@ -18,35 +20,6 @@ use DBI;
 # and redirects user to their management page
 #
 # If user it not logged in they get redirected to a login/register page
-sub session
-{
-	# some function to validate user's session
-	# returns username if session id is valid
-	my $username = "testuser";		# just pretending
-	return $username;
-}
-sub get_isbn
-{
-	# returns properly formatted ISBN-13 if valid
-	# returns false if invalid
-	my $isbn = Business::ISBN->new($_[0]);
-	if($isbn)
-	{
-		if($isbn->is_valid)
-		{
-			my $isbn13 = $isbn->as_isbn13;
-			return $isbn13->as_string;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-	else
-	{
-		return 0;
-	}
-}
 
 my $q = new CGI::Simple;
 
@@ -61,7 +34,7 @@ $isbn = get_isbn($isbn);
 if($title && $isbn && @authors)	# user has cookies
 {
 	# Validate user session
-	my $username = session($q->cookie('sid'));
+	my $username = auth();
 	if($username)	# user has a session
 	{
 		# make a db entry for das book

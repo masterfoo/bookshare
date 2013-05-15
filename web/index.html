@@ -14,13 +14,11 @@
 
 		<div class=input>
 		<p class=subtitle>Borrow a Book</p>
-		<form name=borrow>
-			<select>
-				<option>Title</option>
-				<option>Edition</option>
-				<option>Author</option>
-				<option>ISBN</option>
-				<option>Major</option>
+		<form name=borrow action=/search.html>
+			<select name=type>
+				<option value=title>Title</option>
+				<option value=author>Author</option>
+				<option value=isbn>ISBN</option>
 			</select>
 			<br><br>
 			<input type=text name=keywords size="20">

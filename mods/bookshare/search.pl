@@ -6,29 +6,10 @@ use warnings;
 use CGI::Simple;
 use DBI;
 use Business::ISBN;
+use CGI::Carp 'fatalsToBrowser';	# send errors to browser for debugging
 
-sub isbn_normal
-{
-	# returns properly formatted ISBN-13 if valid
-	# returns 0 if invalid
-	my $isbn = Business::ISBN->new($_[0]);
-	if($isbn)
-	{
-		if($isbn->is_valid)
-		{
-			my $isbn13 = $isbn->as_isbn13;
-			return $isbn13->as_string;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-	else
-	{
-		return 0;
-	}
-}
+require '/home/ghandi/mods/bookshare/bookshare.pl';
+
 sub format_result
 {
 	my ($title,$isbn,$authors_ref,$user,$date,$edition)=@_;
@@ -58,14 +39,46 @@ my $q=new CGI::Simple;
 my $type=$q->param('type');
 my $keyword=$q->param('keywords');
 
+my $dbh = DBI->connect("dbi:SQLite:/home/ghandi/db/bookshare.db") or die $DBI::errstr;
+my ($sth,$date,$title,$edition,$isbn,$bookid,$username);
+
+
 if($type eq "isbn")
 {
-	my $isbn= isbn_normal($keyword);
+	my $isbn= get_isbn($keyword);
+	$isbn="978-0-13-110362-7";
 	if($isbn)
 	{
-		my @authors = ('Chris','Ade','Foo','Meow','Dickbutt');
-		print format_result('Foo','1234',\@authors,'testuser','9/11');	
-
+		#get book match & author ref id
+		$sth = $dbh->prepare("
+			SELECT listings.date_posted,books.title,books.edition,
+					books.isbn,books.book_ref_id,users.username
+			FROM listings 
+				INNER JOIN users ON users.user_id=listings.user_id 
+				INNER JOIN books ON listings.book_ref_id=books.book_ref_id 
+			WHERE books.isbn=?");
+		$sth->execute($isbn);
+		$sth->bind_columns(\$date,\$title,\$edition,\$isbn,\$bookid,\$username);
+		
+		while($sth->fetch())
+		{
+			#Get author associated with the book
+			my $author;
+			my $sth = $dbh->prepare("
+							SELECT author.author_name
+							FROM author
+								INNER JOIN book_author ON author.author_ref_id=book_author.author_ref_id
+							WHERE book_author.book_ref_id=?");
+			$sth->execute($bookid);
+			$sth->bind_columns(\$author);
+			#Add authors to list
+			my @authors;
+			while($sth->fetch())
+			{
+				push(@authors, $author);
+			}
+			print format_result($title,$isbn,\@authors,$username,$date,$edition);	
+		}
 	}	
 	else
 	{
@@ -75,9 +88,102 @@ if($type eq "isbn")
 }
 elsif($type eq "title")
 {
+	if($keyword)
+	{
+		my @keywords = split(/\s+/,$keyword);
+		$keyword = "";
+		foreach(@keywords) { $keyword .= "\\b$_\\b|"; } 
+		chop($keyword);
+		$keyword = lc($keyword);
+		print $keyword;
+		#get book match & author ref id
+		$sth = $dbh->prepare("
+			SELECT listings.date_posted,books.title,books.edition,
+					books.isbn,books.book_ref_id,users.username
+			FROM listings 
+				INNER JOIN users ON users.user_id=listings.user_id 
+				INNER JOIN books ON listings.book_ref_id=books.book_ref_id 
+			WHERE LOWER(books.title) REGEXP '$keyword'");
+		$sth->execute();
+		$sth->bind_columns(\$date,\$title,\$edition,\$isbn,\$bookid,\$username);
+		
+		while($sth->fetch())
+		{
+			#Get author associated with the book
+			my $author;
+			my $sth = $dbh->prepare("
+							SELECT author.author_name
+							FROM author
+								INNER JOIN book_author ON author.author_ref_id=book_author.author_ref_id
+							WHERE book_author.book_ref_id=?");
+			$sth->execute($bookid);
+			$sth->bind_columns(\$author);
+			#Add authors to list
+			my @authors;
+			while($sth->fetch())
+			{
+				push(@authors, $author);
+			}
+			print format_result($title,$isbn,\@authors,$username,$date,$edition);	
+		}
+	}	
+	else
+	{
+		print "Invalid Title";	
+	}
 
 }
 elsif($type eq "author")
 {
+	if($keyword)
+	{	
+		my @keywords = split(/\s+/,$keyword);
+		$keyword = "";
+		foreach(@keywords) { $keyword .= "\\b$_\\b|"; } 
+		chop($keyword);
+		$keyword = lc($keyword);
+		print $keyword;
+		#get book match & author ref id
+		$sth = $dbh->prepare("
+			SELECT listings.date_posted,books.title,books.edition,
+					books.isbn,books.book_ref_id,users.username
+			FROM listings 
+				INNER JOIN users ON users.user_id=listings.user_id 
+				INNER JOIN books ON listings.book_ref_id=books.book_ref_id
+			    INNER JOIN book_author ON author.author_ref_id=book_author.author_ref_id	
+			WHERE LOWER(author.author_name) REGEXP '$keyword'");
+		$sth->execute();
+		$sth->bind_columns(\$date,\$title,\$edition,\$isbn,\$bookid,\$username);
+		
+		while($sth->fetch())
+		{
+			#Get author associated with the book
+			my $author;
+			my $sth = $dbh->prepare("
+							SELECT author.author_name
+							FROM author
+								INNER JOIN book_author ON author.author_ref_id=book_author.author_ref_id
+							WHERE book_author.book_ref_id=?");
+			$sth->execute($bookid);
+			$sth->bind_columns(\$author);
+			#Add authors to list
+			my @authors;
+			while($sth->fetch())
+			{
+				push(@authors, $author);
+			}
+			print format_result($title,$isbn,\@authors,$username,$date,$edition);	
+		}
+	}	
+	else
+	{
+		print "Invalid";	
+	}
 
+
+
+}
+else
+{
+	print "<b>Invalid request</b>";
 }

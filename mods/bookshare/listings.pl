@@ -5,26 +5,17 @@ use strict;
 use CGI::Simple;
 use DBI;
 
+require '/home/ghandi/mods/bookshare/bookshare.pl';
+
 # Chris Handwerker - chandwer@student.fitchburgstate.edu
 # Generates user control panel page
-
-sub session
-{
-	my $sid = @_;
-
-    # some function to validate user's session
-    # returns username if session id is valid
-
-    my $username = "testuser";      # just pretending
-    return $username;
-}
 
 my $q = new CGI::Simple;
 
 # This will display a users book listings
 # Get session id and validate
 my $sid = $q->cookie('sid');
-my $username = session($sid);
+my $username = auth();
 
 if($username)
 {
