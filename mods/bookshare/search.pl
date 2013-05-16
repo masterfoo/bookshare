@@ -41,14 +41,14 @@ my $keyword=$q->param('keywords');
 
 my $dbh = DBI->connect("dbi:SQLite:/home/ghandi/db/bookshare.db") or die $DBI::errstr;
 my ($sth,$date,$title,$edition,$isbn,$bookid,$username);
-
+my $search_term;
 
 if($type eq "isbn")
 {
 	my $isbn= get_isbn($keyword);
-	$isbn="978-0-13-110362-7";
 	if($isbn)
 	{
+		print "<b>Results for:</b> $isbn<br><br>";
 		#get book match & author ref id
 		$sth = $dbh->prepare("
 			SELECT listings.date_posted,books.title,books.edition,
@@ -56,7 +56,7 @@ if($type eq "isbn")
 			FROM listings 
 				INNER JOIN users ON users.user_id=listings.user_id 
 				INNER JOIN books ON listings.book_ref_id=books.book_ref_id 
-			WHERE books.isbn=?");
+			WHERE books.isbn=? ORDER BY listings.date_posted");
 		$sth->execute($isbn);
 		$sth->bind_columns(\$date,\$title,\$edition,\$isbn,\$bookid,\$username);
 		
@@ -68,7 +68,7 @@ if($type eq "isbn")
 							SELECT author.author_name
 							FROM author
 								INNER JOIN book_author ON author.author_ref_id=book_author.author_ref_id
-							WHERE book_author.book_ref_id=?");
+							WHERE book_author.book_ref_id=? ORDER BY author.author_name");
 			$sth->execute($bookid);
 			$sth->bind_columns(\$author);
 			#Add authors to list
@@ -89,13 +89,14 @@ if($type eq "isbn")
 elsif($type eq "title")
 {
 	if($keyword)
-	{
+	{   
+		$search_term=$keyword;
 		my @keywords = split(/\s+/,$keyword);
 		$keyword = "";
 		foreach(@keywords) { $keyword .= "\\b$_\\b|"; } 
 		chop($keyword);
 		$keyword = lc($keyword);
-		print $keyword;
+		print "<b>Results for:</b> $search_term<br><br>";
 		#get book match & author ref id
 		$sth = $dbh->prepare("
 			SELECT listings.date_posted,books.title,books.edition,
@@ -103,7 +104,7 @@ elsif($type eq "title")
 			FROM listings 
 				INNER JOIN users ON users.user_id=listings.user_id 
 				INNER JOIN books ON listings.book_ref_id=books.book_ref_id 
-			WHERE LOWER(books.title) REGEXP '$keyword'");
+			WHERE LOWER(books.title) REGEXP '$keyword' ORDER BY listings.date_posted");
 		$sth->execute();
 		$sth->bind_columns(\$date,\$title,\$edition,\$isbn,\$bookid,\$username);
 		
@@ -115,7 +116,7 @@ elsif($type eq "title")
 							SELECT author.author_name
 							FROM author
 								INNER JOIN book_author ON author.author_ref_id=book_author.author_ref_id
-							WHERE book_author.book_ref_id=?");
+							WHERE book_author.book_ref_id=? ORDER BY author.author_name");
 			$sth->execute($bookid);
 			$sth->bind_columns(\$author);
 			#Add authors to list
@@ -136,13 +137,14 @@ elsif($type eq "title")
 elsif($type eq "author")
 {
 	if($keyword)
-	{	
+	{
+		$search_term=$keyword;
 		my @keywords = split(/\s+/,$keyword);
 		$keyword = "";
 		foreach(@keywords) { $keyword .= "\\b$_\\b|"; } 
 		chop($keyword);
 		$keyword = lc($keyword);
-		print $keyword;
+		print "<b>Results for:</b> $search_term<br><br>";
 		#get book match & author ref id
 		$sth = $dbh->prepare("
 			SELECT listings.date_posted,books.title,books.edition,
@@ -150,8 +152,9 @@ elsif($type eq "author")
 			FROM listings 
 				INNER JOIN users ON users.user_id=listings.user_id 
 				INNER JOIN books ON listings.book_ref_id=books.book_ref_id
-			    INNER JOIN book_author ON author.author_ref_id=book_author.author_ref_id	
-			WHERE LOWER(author.author_name) REGEXP '$keyword'");
+				INNER JOIN book_author ON books.book_ref_id=book_author.book_ref_id
+			    INNER JOIN author ON author.author_ref_id=book_author.author_ref_id	
+			WHERE LOWER(author.author_name) REGEXP '$keyword' ORDER BY listings.date_posted");
 		$sth->execute();
 		$sth->bind_columns(\$date,\$title,\$edition,\$isbn,\$bookid,\$username);
 		
@@ -163,7 +166,7 @@ elsif($type eq "author")
 							SELECT author.author_name
 							FROM author
 								INNER JOIN book_author ON author.author_ref_id=book_author.author_ref_id
-							WHERE book_author.book_ref_id=?");
+							WHERE book_author.book_ref_id=? ORDER BY author.author_name");
 			$sth->execute($bookid);
 			$sth->bind_columns(\$author);
 			#Add authors to list
@@ -177,7 +180,7 @@ elsif($type eq "author")
 	}	
 	else
 	{
-		print "Invalid";	
+		print "Invalid Author";	
 	}
 
 

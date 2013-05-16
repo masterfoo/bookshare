@@ -4,3 +4,4 @@
 header=header.pl
 listings=listings.pl
 search=search.pl
+options=options.pl

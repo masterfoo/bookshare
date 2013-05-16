@@ -5,3 +5,4 @@
 redir=redir.sh
 user_list=user_list.bash
 list_list=list_list.bash
+operate=operate

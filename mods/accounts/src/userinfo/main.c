@@ -17,9 +17,13 @@ int main(int argc, char**argv){
 	int e=0;
 
 	str=getenv("kraknet_user_auth");
-	if(!str)e++; else {
-		if(!strncmp(str,"NO",2))e++;
-		if(strncmp(str,"OK",2))e++;
+	if(!str)
+		e++;
+	else {
+		if(!strncmp(str,"NO",2))
+			e++;
+		if(strncmp(str,"OK",2))
+			e++;
 	}
 	if(!(user=getenv("kraknet_user")))
 		e++;

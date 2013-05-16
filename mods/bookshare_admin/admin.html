@@ -1,0 +1,71 @@
+!# Welcome, traveler!
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=UTF-8>
+	<title>FSU BookShare - Adminstrator</title>
+	<link rel="stylesheet" type="text/css" href="/s/main.css">
+	<link rel="stylesheet" type="text/css" href="/s/admin.css">
+	<script type=text/javascript src=admin.js></script>
+	<????bookshare_admin:redir>
+</head>
+<body>
+	<div class=main>
+		<????bookshare:header "Administrator">
+		<div class=menu><????accounts:user_info></div>
+
+		<????bookshare_admin:operate>
+
+		<div id="listing_mgmt">
+			<h2>Listing Management</h2>
+			<div style="margin-bottom:10px; position:absolute; top: 0px;right:0px; width:40%">
+				<input id=search_user style="width:70%;"><button>Filter</button>
+			</div>
+			<div id=listing_select>
+				<select size=10>
+					<????bookshare_admin:list_list>
+				</select>
+			</div>
+			<div id=listing_options>
+				<h3>With Selected:</h3>
+				<button>Delete</button><br>
+				<button>View Details</button>
+			</div>
+		</div>
+		<hr>
+		<div id="user_management">
+			<h2>User Administration</h2>
+			<div style="margin-bottom:10px; position:absolute; top: 0px;right:0px; width:40%">
+				<input id=search_user style="width:70%;"><button>Filter</button>
+			</div>
+
+			<form name=users method=post>
+				<div id="user_list">
+						<input type=hidden name=op value="">
+						<input type=hidden name=code value="">
+						<table class=user_table>
+							<tr>
+								<th class=utcol_check><input type=checkbox></th>
+								<th class=utcol_name>User Name</th>
+								<th class=utcol_perm>Perm Level</th>
+								<th class=utcol_jdate>Date Joined</th>
+								<th class=utcol_email>Email Address</th>
+							</tr>
+
+							<!-- Users list here -->
+							<????bookshare_admin:user_list>
+							<!-- Users list ends -->
+						</table>
+				</div>
+				<div id="user_op">
+					<h3>With selected:</h3>
+					<input type=button value="Lock" onclick="lock_selected_user();"><br>
+					<input name=code_s size=1 value=1><input type=button value="Set" onclick="set_perm_level();"><br>
+					<input type=button value="View Details">
+				</div>
+			</form>
+		</div>
+		<hr>
+	</div>
+</body>
+</html>

@@ -166,6 +166,9 @@ int main(){
 	//Redirect
 	if(strstr(ref,"/register.html")||!*ref)
 		strcpy(ref,"/");
+	if(s=getenv("HTTP_COOKIE"))
+		if(strstr(s,"isbn="))
+			strcpy(ref,"/share.cgi");
 	printf(
 		"\n<!DOCTYPE html>\n"
 		"<html><head><meta http-equiv=\"refresh\" content=\"1;url=%s\">Redirecting to %s ...</head></html>\n",

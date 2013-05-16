@@ -1,8 +1,6 @@
 #!/usr/bin/perl
 
 use strict;
-
-use CGI::Simple;
 use DBI;
 
 require '/home/ghandi/mods/bookshare/bookshare.pl';
@@ -10,11 +8,8 @@ require '/home/ghandi/mods/bookshare/bookshare.pl';
 # Chris Handwerker - chandwer@student.fitchburgstate.edu
 # Generates user control panel page
 
-my $q = new CGI::Simple;
-
 # This will display a users book listings
 # Get session id and validate
-my $sid = $q->cookie('sid');
 my $username = auth();
 
 if($username)
@@ -23,19 +18,20 @@ if($username)
 	my ($sth,$date,$title,$edition,$isbn,$bookid);
 	
 	$sth = $dbh->prepare("
-				SELECT listings.date_posted,books.title,books.edition,
+				SELECT strftime('%m/%d/%Y',listings.date_posted),books.title,books.edition,
 						books.isbn,books.book_ref_id
 				FROM listings 
 					INNER JOIN users ON users.user_id=listings.user_id 
 					INNER JOIN books ON listings.book_ref_id=books.book_ref_id 
-				WHERE users.username=?");
+				WHERE users.username=? ORDER BY listings.date_posted");
 	$sth->execute($username);
 	$sth->bind_columns(\$date,\$title,\$edition,\$isbn,\$bookid);
 
-	print "<b>Book listing for:</b> $username<br><br>";
+print "<table cellpadding=2 border=1>";
+print "<tr><td><b>Date Posted</b></td><td><b>Title</b></td><td><b>Edition</b></td><td><b>ISBN</b></td><td><b>Authors</b></td></tr>\n";
 	while($sth->fetch())
 	{
-		print "$date\t$title\t$edition\t$isbn";
+		print "<tr><td valign=top>$date</td><td valign=top>$title</td><td valign=top>$edition</td><td valign=top>$isbn</td>";
 		my $author;
 		my $sth = $dbh->prepare("
 						SELECT author.author_name 
@@ -45,11 +41,16 @@ if($username)
 
 		$sth->execute($bookid);
 		$sth->bind_columns(\$author);
-		print "\nAuthors: ";
+		print "<td>";
 		while($sth->fetch())
 		{
-			print "$author, ";
+			print "$author<br>";
 		}
-		print "\n\n\n\n";
+		"</td></td>\n";
 	}
+print "</table>";
+}
+else
+{
+	print "<b>You need an account to view this page</b>\n";
 }
