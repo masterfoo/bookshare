@@ -11,3 +11,4 @@ user=get_user
 logout=logout
 login_ref=referrer.py
 reg_error=reg_error
+permissions=get_permissions.sh

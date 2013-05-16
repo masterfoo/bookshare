@@ -1,0 +1,7 @@
+# Special scripts for generating the administration page for Bookshare
+# Written by Mike Perron
+# 2013
+
+redir=redir.sh
+user_list=user_list.bash
+list_list=list_list.bash
